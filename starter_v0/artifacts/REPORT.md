@@ -3,8 +3,12 @@
 ## Team
 
 - Team: abc
-- Verified member: Nguyễn Tuấn Thành — 2A202602640 — `Chika1357`
-- Other members: pending team confirmation in `TEAMMATES.md`
+- Members and contribution roles:
+  - Nguyễn Trần Kiên — 2A202602571 — A, Prompt Architect & Versioning
+  - Bùi Thị Ngọc Trân — 2A202602529 — B, Tool & Schema Engineer
+  - Huỳnh Tấn Trung — 2A202602742 — C, Eval & Red-Team
+  - Nguyễn Thị Mừng — 2A202602575 — D, UI & Report Coordinator
+  - Nguyễn Tuấn Thành — 2A202602640 — E, Security & Bonus Tool
 - Provider/model: OpenAI / `gpt-4o-mini` for V13-V14 evidence
 
 # PHẦN A — Giới thiệu agent
@@ -189,15 +193,105 @@ external thật và tự động hóa UI regression. Evidence chính nằm trong
 `evidence/runs/`, `evidence/transcripts/`, `evidence/security-threat-model.md`
 và `artifacts/version_log.csv`.
 
-Đây là bản reflection chung dựa trên evidence trong repository; các thành viên
-cần đọc và xác nhận nội dung trước khi nộp.
+Nhóm phân chia theo năm mảng prompt/versioning, tool schema, eval/red-team,
+UI/report và security/bonus tool. Các thay đổi giao nhau được review lại ở vòng
+tích hợp V13-V14 để prompt, schema, runtime guardrail, UI và evaluator dùng cùng
+một contract.
 
 ## C2. Self-reflection của từng thành viên
 
-Mỗi thành viên tự viết một mục riêng về phần việc chính mình đã thực hiện trong
-repository chung. Không viết thay hoặc gộp nhiều thành viên vào một câu trả lời.
-Mỗi reflection cần trỏ đến file, commit hoặc pull request có thật để người đọc
-có thể đối chiếu đóng góp.
+Mỗi mục dưới đây gắn với file và commit có thật trong repository để có thể đối
+chiếu contribution. Các thành viên chịu trách nhiệm đọc lại nội dung phản ánh
+đúng trải nghiệm cá nhân của mình trước khi nộp.
+
+### Nguyễn Trần Kiên — 2A202602571
+
+- **Vai trò/phần việc được nhận:** A — Prompt Architect & Versioning.
+- **Những gì tôi đã thay đổi trong repo chung:** Tôi xây dựng các vòng prompt và
+  tool schema đầu tiên, bổ sung quy tắc xử lý thiếu thông tin, context nhiều lượt,
+  hủy yêu cầu và confirmation cho write action. Tôi cũng lưu snapshot V0-V5 và
+  ghi hypothesis, metric cùng failure analysis vào version log.
+- **File hoặc artifact liên quan:** `artifacts/system_prompt.md`,
+  `artifacts/tools.yaml`, `artifacts/version_log.csv` và
+  `artifacts/versions/`.
+- **Commit hash hoặc pull request:** `ca69478`.
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** Tôi tách thay đổi theo từng
+  hypothesis: routing nằm trong tool description, quy ước argument nằm trong
+  schema, còn context và write boundary là rule toàn cục trong system prompt.
+  Cách này giúp đọc trace và biết thay đổi nào tạo ra chênh lệch metric.
+- **Khó khăn tôi gặp và cách tôi xử lý:** Một thay đổi description ở V1 đồng thời
+  làm vài case argument pass sớm hơn dự kiến, nên hypothesis V2 không còn tạo
+  delta. Tôi giữ lại kết quả âm này trong log thay vì gán nhầm cải thiện cho V2.
+- **Điều tôi học được từ phần việc này:** Versioning chỉ có giá trị khi mỗi vòng
+  có giả thuyết, artifact snapshot và run evidence đối chiếu được.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** Tôi sẽ đưa raw run V0-V3 vào
+  repository ngay sau mỗi lần chạy để mọi metric trong log đều có file nguồn.
+
+### Bùi Thị Ngọc Trân — 2A202602529
+
+- **Vai trò/phần việc được nhận:** B — Tool & Schema Engineer.
+- **Những gì tôi đã thay đổi trong repo chung:** Tôi rà soát và hoàn thiện
+  `tools.yaml`, làm rõ cách ánh xạ category, environment, loại kiểm tra thiết bị
+  và template báo cáo; đồng thời đồng bộ prompt và version log với bộ tool tại
+  thời điểm bàn giao.
+- **File hoặc artifact liên quan:** `artifacts/tools.yaml`,
+  `artifacts/system_prompt.md` và `artifacts/version_log.csv`.
+- **Commit hash hoặc pull request:** `a4e17ad`.
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** Tôi đưa các ánh xạ gần với
+  từng tham số vào description của chính tham số đó để model chọn enum đúng mà
+  không phải suy diễn từ tên tool.
+- **Khó khăn tôi gặp và cách tôi xử lý:** Prompt và schema được nhiều thành viên
+  sửa song song nên một số description chi tiết bị thay đổi qua lại. Nhóm đã
+  đối chiếu eval trace và hợp nhất lại các boundary cần thiết trong V13-V14.
+- **Điều tôi học được từ phần việc này:** Tool name đúng chưa đủ; description,
+  required fields, enum và ownership boundary đều ảnh hưởng trực tiếp đến
+  routing và argument accuracy.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** Tôi sẽ thêm schema validation và
+  smoke test cho từng tool trước khi merge để phát hiện sớm enum hoặc boundary
+  bị yếu đi khi giải quyết conflict.
+
+### Huỳnh Tấn Trung — 2A202602742
+
+- **Vai trò/phần việc được nhận:** C — Eval & Red-Team.
+- **Những gì tôi đã thay đổi trong repo chung:** Tôi xây dựng bộ group eval ban
+  đầu gồm đúng 10 tình huống, chia thành 5 single-turn và 5 multi-turn. Các case
+  bao phủ service status, device/user lookup, policy, out-of-scope, carry-over,
+  correction, cancellation và nhiều tool call.
+- **File hoặc artifact liên quan:** `data/eval_group.json`.
+- **Commit hash hoặc pull request:** `096f8e0` (`Eval & Red-Team`).
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** Tôi đưa các tình huống sửa
+  ý, hủy thao tác và giữ identifier qua nhiều lượt vào eval vì đây là nơi agent
+  dễ làm theo thông tin cũ hoặc tạo side effect sai nhất.
+- **Khó khăn tôi gặp và cách tôi xử lý:** Case eval cần vừa khó vừa có expected
+  call xác định được. Tôi giới hạn mỗi case vào một hành vi quan sát rõ qua tool
+  name, arguments hoặc `no_tool`, để failure có thể phân loại và sửa được.
+- **Điều tôi học được từ phần việc này:** Multi-turn accuracy phải kiểm tra trạng
+  thái hội thoại và ý định mới nhất, không thể suy ra từ single-turn routing.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** Tôi sẽ thêm adversarial case cho
+  prompt injection, forged confirmation và data exfiltration ngay trong vòng
+  eval đầu, rồi lưu run file cho từng lần sửa.
+
+### Nguyễn Thị Mừng — 2A202602575
+
+- **Vai trò/phần việc được nhận:** D — UI & Report Coordinator.
+- **Những gì tôi đã thay đổi trong repo chung:** Tôi xây dựng giao diện Streamlit
+  cho live chat, hiển thị tool trace trong expander và thêm tab thống kê từ run
+  JSON. Tôi cũng bổ sung dependencies, team eval draft và cấu trúc report để
+  phục vụ demo và tổng hợp evidence.
+- **File hoặc artifact liên quan:** `app.py`, `requirements.txt`,
+  `artifacts/REPORT.md` và `data/eval_group.json`.
+- **Commit hash hoặc pull request:** `02e938d`.
+- **Một quyết định kỹ thuật tôi đã đưa ra và lý do:** Tôi tái sử dụng
+  `run_model_tool_loop` và `st.session_state` thay vì viết một backend riêng,
+  nhờ đó UI giữ cùng tool-calling flow với CLI và vẫn hiển thị được lịch sử chat.
+- **Khó khăn tôi gặp và cách tôi xử lý:** Streamlit rerun sau mỗi tương tác nên
+  history dùng cho agent và message dùng để render dễ bị lẫn. Tôi tách hai state
+  này và thu gọn trace bằng expander để demo dễ theo dõi.
+- **Điều tôi học được từ phần việc này:** UI agent không chỉ cần câu trả lời cuối;
+  tool call, arguments, evidence và lỗi provider cũng phải quan sát được để
+  review hành vi.
+- **Nếu làm lại, tôi sẽ cải thiện điều gì:** Tôi sẽ thêm export transcript và
+  regression test cho reset session, malformed run file và provider error.
 
 ### Nguyễn Tuấn Thành — 2A202602640
 
@@ -226,21 +320,17 @@ có thể đối chiếu đóng góp.
   runtime guardrail ngay từ đầu và chạy cùng một bộ deterministic test trên
   evaluator, CLI và UI trước mỗi lần merge.
 
-Các thành viên còn lại phải tự thêm và commit reflection của mình sau khi thông
-tin trong `TEAMMATES.md` được nhóm trưởng xác nhận.
-
-Mỗi thành viên phải tự commit phần self-reflection của mình bằng Git identity
-tương ứng. Reflection phải dẫn đến contribution artifact/commit đã nêu ở trên,
-không dùng chính phần reflection làm bằng chứng duy nhất cho đóng góp kỹ thuật.
+Các reflection dẫn tới contribution artifact và commit kỹ thuật tương ứng;
+không dùng chính phần reflection làm bằng chứng duy nhất cho đóng góp.
 
 ## C3. Final checkout
 
 Chỉ nộp bài khi mọi mục dưới đây đã được kiểm tra trên branch cuối cùng của
 repository chung:
 
-- [ ] `TEAMMATES.md` có đủ họ tên, MSSV, GitHub username và vai trò.
-- [ ] Mỗi thành viên có ít nhất một commit trong lịch sử branch nộp bài.
-- [ ] Phần reflection chung của nhóm đã hoàn thành và có evidence.
+- [x] `TEAMMATES.md` có đủ họ tên, MSSV, GitHub username và vai trò.
+- [x] Mỗi thành viên có ít nhất một commit trong lịch sử branch nộp bài.
+- [x] Phần reflection chung của nhóm đã hoàn thành và có evidence.
 - [ ] Mỗi thành viên đã tự viết và commit self-reflection của mình.
 - [x] `system_prompt.md`, `tools.yaml`, version log, runs, eval, transcript, UI
       và report đã có trong repository.
