@@ -1,0 +1,34 @@
+{
+  "transcript_id": "v14_openai_20260915T105134105485",
+  "version": "v14",
+  "artifact_version": "v14+p4829876b0783+t28352fd33b79",
+  "prompt_hash": "4829876b0783923c2e05af3ec3594f4e5aa86092447955dad91cc131b6b3076a",
+  "tools_hash": "28352fd33b79582cf48323185bf0798469dc07f522aa8d6fcc9ecd0e6247b2bb",
+  "provider": "openai",
+  "model": "gpt-4o-mini",
+  "system_prompt": "D:\\Vin_Lab\\K4A-Day04-abc\\starter_v0\\artifacts\\system_prompt.md",
+  "tools": "D:\\Vin_Lab\\K4A-Day04-abc\\starter_v0\\artifacts\\tools.yaml",
+  "history_window": 5,
+  "max_tool_rounds": 4,
+  "created_at": "2026-09-15T10:51:34",
+  "updated_at": "2026-09-15T10:51:36",
+  "turns": [
+    {
+      "turn_index": 1,
+      "started_at": "2026-09-15T10:51:34",
+      "user": "Ki?m tra VPN tr?n laptop c?a t?i.",
+      "status": "answered",
+      "assistant_text": "Vui lòng cung cấp mã tài sản của laptop để tôi có thể kiểm tra trạng thái VPN cho bạn.",
+      "rounds": [
+        {
+          "round": 1,
+          "assistant_text": "Vui lòng cung cấp mã tài sản của laptop để tôi có thể kiểm tra trạng thái VPN cho bạn.",
+          "tool_calls": [],
+          "tool_results": []
+        }
+      ],
+      "tool_events": [],
+      "ended_at": "2026-09-15T10:51:36"
+    }
+  ]
+}

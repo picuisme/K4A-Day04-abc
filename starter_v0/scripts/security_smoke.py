@@ -16,6 +16,7 @@ if str(PROJECT_ROOT) not in sys.path:
 from tools.search_device_info.tool import search_device_info
 from scripts.audit_tickets import audit_ticket_directory
 from agent import HelpdeskAgent
+from chat import run_model_tool_loop
 from providers.base import ModelResponse, ToolCall
 
 
@@ -290,6 +291,40 @@ def check_runtime_preserves_local_read_during_exfiltration_attempt() -> None:
     post.assert_not_called()
 
 
+def check_runtime_filters_identifier_type_mismatch() -> None:
+    provider = StubProvider([
+        ToolCall(name="lookup_user", args={"employee_id": "EMP-1009"}),
+        ToolCall(name="inspect_device", args={"asset_id": "EMP-1009", "check": "all"}),
+    ])
+    run = HelpdeskAgent(provider, system_prompt="test").run([
+        {"role": "user", "content": "Check account EMP-1009."},
+    ])
+    assert [call.name for call in run.tool_calls] == ["lookup_user"]
+    assert run.tool_results[0]["result"]["reason"] == "identifier_type_mismatch"
+    assert run.tool_results[1]["result"]["employee"]["employee_id"] == "EMP-1009"
+
+
+def check_chat_loop_uses_runtime_guardrails() -> None:
+    provider = StubProvider([ToolCall(
+        name="create_ticket",
+        args={"summary": "password=Example123!", "priority": "high", "confirmed": True},
+    )])
+    result = run_model_tool_loop(
+        provider=provider,
+        messages=[
+            {"role": "system", "content": "test"},
+            {"role": "user", "content": "Create a ticket with password=Example123!"},
+        ],
+        tools=[],
+        model=None,
+        max_tool_rounds=1,
+    )
+    assert result["status"] == "answered"
+    assert result["tool_events"][0]["tool"] == "runtime_guardrail"
+    assert result["tool_events"][0]["result"]["reason"] == "sensitive_data_in_action_request"
+    assert all(event["tool"] != "create_ticket" for event in result["tool_events"])
+
+
 def main() -> None:
     checks = (
         ("Tavily rejects internal identifiers before network I/O", check_internal_identifier_blocked),
@@ -304,6 +339,8 @@ def main() -> None:
         ("Runtime invalidates stale confirmation in eval context", check_runtime_invalidates_stale_confirmation_in_eval_context),
         ("Runtime reroutes external identifier smuggling", check_runtime_reroutes_external_smuggling),
         ("Runtime preserves safe local reads while blocking exfiltration", check_runtime_preserves_local_read_during_exfiltration_attempt),
+        ("Runtime filters identifier type mismatches", check_runtime_filters_identifier_type_mismatch),
+        ("CLI and UI loop applies runtime guardrails", check_chat_loop_uses_runtime_guardrails),
     )
     for name, check in checks:
         run_check(name, check)

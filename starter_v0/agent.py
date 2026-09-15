@@ -12,6 +12,7 @@ from tools.search_device_info.tool import INTERNAL_IDENTIFIER, RESTRICTED_INTERN
 
 
 EMPLOYEE_ID_PATTERN = re.compile(r"^EMP-\d+$", re.IGNORECASE)
+ASSET_ID_PATTERN = re.compile(r"^[A-Z]{2}-\d+$", re.IGNORECASE)
 
 
 @dataclass
@@ -93,6 +94,41 @@ def _enforce_runtime_guardrails(
                 "status": "rerouted",
                 "reason": "restricted_data_in_external_search",
                 "blocked_tools": [call.name for call in proposed_calls],
+            },
+        }], None
+
+    invalid_identifier_calls = [
+        call
+        for call in proposed_calls
+        if (
+            call.name == "inspect_device"
+            and not ASSET_ID_PATTERN.fullmatch(str(call.args.get("asset_id") or ""))
+        ) or (
+            call.name == "lookup_user"
+            and not EMPLOYEE_ID_PATTERN.fullmatch(str(call.args.get("employee_id") or ""))
+        )
+    ]
+    if invalid_identifier_calls:
+        valid_calls = [call for call in proposed_calls if call not in invalid_identifier_calls]
+        if valid_calls:
+            return valid_calls, [{
+                "tool": "runtime_guardrail",
+                "result": {
+                    "status": "filtered",
+                    "reason": "identifier_type_mismatch",
+                    "blocked_tools": [call.name for call in invalid_identifier_calls],
+                },
+            }], None
+        safe_call = ToolCall(name="clarify", args={
+            "question": "Please provide an asset ID for device checks or an employee ID for user lookup.",
+            "response_type": "text",
+        })
+        return [safe_call], [{
+            "tool": "runtime_guardrail",
+            "result": {
+                "status": "rerouted",
+                "reason": "identifier_type_mismatch",
+                "blocked_tools": [call.name for call in invalid_identifier_calls],
             },
         }], None
 
