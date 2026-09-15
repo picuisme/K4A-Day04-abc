@@ -3,5 +3,26 @@
   "dataset_role": "group",
   "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
-  "cases": []
+  "cases": [
+    {
+      "id": "G-SW01_approved_software_lookup",
+      "phase": "B",
+      "suite": "group",
+      "query": "Docker Desktop có được phép cài trên laptop Windows của công ty không?",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "approved_software_catalog",
+            "args": {"query": "Docker Desktop", "platform": "windows"}
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "approved_software_routing",
+        "difficulty": "medium",
+        "what_it_tests": "Câu hỏi về trạng thái phê duyệt phần mềm phải tra catalog, không dùng KB chung hoặc tự tuyên bố được cài đặt."
+      }
+    }
+  ]
 }

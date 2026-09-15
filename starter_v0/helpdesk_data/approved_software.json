@@ -1,0 +1,79 @@
+{
+  "catalog_version": "2026.09-lab",
+  "updated_at": "2026-09-14T09:00:00+07:00",
+  "source": "Synthetic IT software catalog for Day 04 lab",
+  "applications": [
+    {
+      "software_id": "SW-001",
+      "name": "Microsoft 365 Apps",
+      "aliases": ["Microsoft Office", "Office 365", "M365"],
+      "status": "approved",
+      "supported_platforms": ["windows", "macos"],
+      "approved_versions": ["current enterprise channel"],
+      "license": "company_managed",
+      "install_method": "Company Portal",
+      "owner_team": "Workplace Engineering",
+      "notes": "Use the company-managed build and sign in with the corporate account."
+    },
+    {
+      "software_id": "SW-002",
+      "name": "Visual Studio Code",
+      "aliases": ["VS Code", "VSCode"],
+      "status": "approved",
+      "supported_platforms": ["windows", "macos", "linux"],
+      "approved_versions": ["current stable channel"],
+      "license": "standard",
+      "install_method": "Company Portal or managed package repository",
+      "owner_team": "Developer Experience",
+      "notes": "Extensions still require separate security review when they access company data."
+    },
+    {
+      "software_id": "SW-003",
+      "name": "Zoom Workplace",
+      "aliases": ["Zoom", "Zoom Client"],
+      "status": "approved",
+      "supported_platforms": ["windows", "macos", "linux", "ios", "android"],
+      "approved_versions": ["current stable channel"],
+      "license": "company_managed",
+      "install_method": "Company Portal or managed mobile app store",
+      "owner_team": "Collaboration Services",
+      "notes": "Use SSO for company meetings."
+    },
+    {
+      "software_id": "SW-004",
+      "name": "7-Zip",
+      "aliases": ["7zip", "Seven Zip"],
+      "status": "approved",
+      "supported_platforms": ["windows"],
+      "approved_versions": ["managed package version"],
+      "license": "standard",
+      "install_method": "Company Portal",
+      "owner_team": "Workplace Engineering",
+      "notes": "Install only from the managed catalog, not third-party download sites."
+    },
+    {
+      "software_id": "SW-005",
+      "name": "Docker Desktop",
+      "aliases": ["Docker"],
+      "status": "restricted",
+      "supported_platforms": ["windows", "macos"],
+      "approved_versions": ["managed engineering channel"],
+      "license": "approval_required",
+      "install_method": "Request through IT service desk",
+      "owner_team": "Developer Experience",
+      "notes": "Requires manager approval and a valid engineering use case."
+    },
+    {
+      "software_id": "SW-006",
+      "name": "AnyDesk",
+      "aliases": ["Any Desk"],
+      "status": "prohibited",
+      "supported_platforms": ["windows", "macos", "linux"],
+      "approved_versions": [],
+      "license": "not_permitted",
+      "install_method": "Not available",
+      "owner_team": "Security Operations",
+      "notes": "Unmanaged remote-access software is prohibited. Use the approved support channel."
+    }
+  ]
+}

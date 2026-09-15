@@ -75,6 +75,7 @@ routing accuracy.
 | `inspect_device` | Local inventory | `helpdesk_data/assets.json` | Không |
 | `lookup_user` | Local directory | `helpdesk_data/users.json` | Không |
 | `format_incident_report` | Local formatter | Không | Không |
+| `approved_software_catalog` | Local catalog, team-built bonus | `helpdesk_data/approved_software.json` | Không |
 | `policy` | Local knowledge | `company_policy/*.md` | Không |
 | `create_ticket` | Local write action | Ghi vào `starter_v0/tickets/` | Không |
 | `search_device_info` | External search | Tavily Search API | `TAVILY_API_KEY` |
@@ -139,6 +140,15 @@ python -c "from tools import TOOL_FUNCTIONS as T; r=T['policy']('dữ liệu nà
 ```
 
 PASS khi trả policy section có source metadata và trust boundary.
+
+### `approved_software_catalog` (team-built bonus)
+
+```powershell
+python scripts/bonus_tool_smoke.py
+```
+
+PASS khi cả 6 check thành công. Tool chỉ đọc catalog tổng hợp, trả trạng thái
+`approved`, `restricted` hoặc `prohibited`, và không cài đặt hay cấp ngoại lệ.
 
 ## 6. Action tool: `create_ticket`
 
