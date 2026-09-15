@@ -2,11 +2,13 @@ from __future__ import annotations
 
 import argparse
 import json
+import sys
 import re
 from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from agent import _enforce_runtime_guardrails
 from env_loader import load_lab_env
 from providers import make_provider
 from providers.base import ToolCall
@@ -86,24 +88,38 @@ def run_model_tool_loop(
     max_tool_rounds: int,
 ) -> dict[str, Any]:
     working_messages = list(messages)
+    guardrail_messages = [
+        message
+        for message in messages
+        if message.get("role") == "user"
+        and not str(message.get("content") or "").startswith("TOOL_RESULTS_JSON:")
+    ]
     rounds: list[dict[str, Any]] = []
     all_tool_events: list[dict[str, Any]] = []
 
     for round_index in range(1, max_tool_rounds + 1):
         response = provider.complete(working_messages, tools, model=model, temperature=0.0)
-        calls = response.tool_calls
+        calls, guardrail_results, guarded_text = _enforce_runtime_guardrails(
+            guardrail_messages,
+            response.tool_calls,
+        )
+        guardrail_events = [
+            {"tool": item["tool"], "args": {}, "result": item["result"]}
+            for item in guardrail_results
+        ]
         round_record: dict[str, Any] = {
             "round": round_index,
-            "assistant_text": response.text,
+            "assistant_text": guarded_text or response.text,
             "tool_calls": [{"name": call.name, "args": call.args} for call in calls],
-            "tool_results": [],
+            "tool_results": list(guardrail_events),
         }
+        all_tool_events.extend(guardrail_events)
 
         if not calls:
             rounds.append(round_record)
             return {
                 "status": "answered",
-                "assistant_text": response.text or "",
+                "assistant_text": guarded_text or response.text or "",
                 "rounds": rounds,
                 "tool_events": all_tool_events,
             }
@@ -150,6 +166,10 @@ def write_transcript(path: Path, transcript: dict[str, Any]) -> None:
 
 
 def main() -> None:
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
+
     parser = argparse.ArgumentParser(description="Interactive IT Helpdesk Agent chat with transcript logging.")
     parser.add_argument("--provider", choices=["openrouter", "openai", "anthropic", "gemini"], required=True)
     parser.add_argument("--model", default=None)

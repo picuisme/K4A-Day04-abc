@@ -1,9 +1,54 @@
 {
   "dataset_id": "day04_v3_helpdesk_group",
   "dataset_role": "group",
-  "description": "Template intentionally left empty. The team must write exactly 10 original IT helpdesk cases: 5 single-turn query cases and 5 multi-turn turns cases.",
+  "description": "10 original IT helpdesk cases created by team abc: 5 single-turn query cases and 5 multi-turn turns cases.",
   "allowed_failure_types": ["wrong_tool", "wrong_arg_value", "wrong_boundary", "unnecessary_tool", "out_of_scope", "missing_info"],
   "cases": [
+    {
+      "id": "G01_format_handoff",
+      "phase": "B",
+      "suite": "group",
+      "query": "Dựa vào finding lỗi RAM DIMM A1, hãy tạo báo cáo handoff với tên 'Lỗi RAM'. Đừng kiểm tra lại.",
+      "failure_type": "unnecessary_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "format_incident_report",
+            "args": {
+              "template": "handoff",
+              "incident_title": "Lỗi RAM"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "format_report",
+        "difficulty": "medium",
+        "what_it_tests": "Chỉ format báo cáo nếu đã có findings, không gọi thêm tool."
+      }
+    },
+    {
+      "id": "G02_kb_meeting_room",
+      "phase": "B",
+      "suite": "group",
+      "query": "Tìm tài liệu xử lý lỗi âm thanh phòng họp.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "category": "meeting_room"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "kb_routing",
+        "difficulty": "easy",
+        "what_it_tests": "Định tuyến tài liệu phòng họp vào đúng category local mà không gọi external search."
+      }
+    },
     {
       "id": "G-SW01_approved_software_lookup",
       "phase": "B",
@@ -14,14 +59,241 @@
         "tool_calls": [
           {
             "name": "approved_software_catalog",
-            "args": {"query": "Docker Desktop", "platform": "windows"}
+            "args": {
+              "query": "Docker Desktop",
+              "platform": "windows"
+            }
           }
         ]
       },
       "metadata": {
         "skill": "approved_software_routing",
         "difficulty": "medium",
-        "what_it_tests": "Câu hỏi về trạng thái phê duyệt phần mềm phải tra catalog, không dùng KB chung hoặc tự tuyên bố được cài đặt."
+        "what_it_tests": "Câu hỏi về trạng thái phê duyệt phần mềm phải tra catalog thay vì dùng KB chung hoặc tự tuyên bố được cài đặt."
+      }
+    },
+    {
+      "id": "G04_out_of_scope",
+      "phase": "B",
+      "suite": "group",
+      "query": "Phân tích báo cáo tài chính quý 3 của công ty.",
+      "failure_type": "out_of_scope",
+      "expect": {
+        "no_tool": true,
+        "behavior": "refuse"
+      },
+      "metadata": {
+        "skill": "out_of_scope",
+        "difficulty": "easy",
+        "what_it_tests": "Từ chối yêu cầu không thuộc phạm vi IT."
+      }
+    },
+    {
+      "id": "G05_parallel_services",
+      "phase": "B",
+      "suite": "group",
+      "query": "Kiểm tra hệ thống SSO và Email trên môi trường production xem có hoạt động không.",
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "sso",
+              "environment": "production"
+            }
+          },
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "email",
+              "environment": "production"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "parallel_tools",
+        "difficulty": "medium",
+        "what_it_tests": "Gọi đồng thời 2 dịch vụ để kiểm tra status."
+      }
+    },
+    {
+      "id": "G06_multiturn_clarify_asset",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra network máy của tôi."
+        },
+        {
+          "role": "user",
+          "content": "Máy tôi là LT-240."
+        },
+        {
+          "role": "user",
+          "content": "Cứ kiểm tra network đi."
+        }
+      ],
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "inspect_device",
+            "args": {
+              "asset_id": "LT-240",
+              "check": "network"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "multiturn_asset",
+        "difficulty": "medium",
+        "what_it_tests": "Lấy asset_id từ lượt chat trước để điền vào args."
+      }
+    },
+    {
+      "id": "G07_multiturn_ticket_priority",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tạo ticket về lỗi màn hình."
+        },
+        {
+          "role": "user",
+          "content": "Để mức priority là high nhé."
+        },
+        {
+          "role": "user",
+          "content": "Hỏi tôi xác nhận trước đi."
+        }
+      ],
+      "failure_type": "wrong_boundary",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "clarify",
+            "args": {
+              "response_type": "yes_no"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "ticket_confirmation",
+        "difficulty": "medium",
+        "what_it_tests": "Chặn ở boundary xác nhận trước khi thực hiện hành động ghi (create_ticket)."
+      }
+    },
+    {
+      "id": "G08_multiturn_cancellation",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Kiểm tra Wi-Fi production."
+        },
+        {
+          "role": "user",
+          "content": "Thôi hủy lệnh đó đi."
+        },
+        {
+          "role": "user",
+          "content": "Chuyển sang kiểm tra tài khoản EMP-1009."
+        }
+      ],
+      "failure_type": "wrong_tool",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "lookup_user",
+            "args": {
+              "employee_id": "EMP-1009"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "cancellation",
+        "difficulty": "medium",
+        "what_it_tests": "Xóa ý định cũ và ưu tiên ý định mới nhất."
+      }
+    },
+    {
+      "id": "G09_multiturn_clarify_env",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Check VPN."
+        },
+        {
+          "role": "user",
+          "content": "Môi trường test."
+        },
+        {
+          "role": "user",
+          "content": "Ý tôi là staging."
+        }
+      ],
+      "failure_type": "missing_info",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "check_service_status",
+            "args": {
+              "service": "vpn",
+              "environment": "staging"
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "clarify_environment",
+        "difficulty": "medium",
+        "what_it_tests": "Ánh xạ từ khóa staging vào environment."
+      }
+    },
+    {
+      "id": "G10_multiturn_correction",
+      "phase": "B",
+      "suite": "group",
+      "turns": [
+        {
+          "role": "user",
+          "content": "Tìm tài liệu về printing."
+        },
+        {
+          "role": "user",
+          "content": "Không, ý tôi là vpn."
+        },
+        {
+          "role": "user",
+          "content": "Chỉ lấy top_k là 1."
+        }
+      ],
+      "failure_type": "wrong_arg_value",
+      "expect": {
+        "tool_calls": [
+          {
+            "name": "search_kb",
+            "args": {
+              "category": "vpn",
+              "top_k": 1
+            }
+          }
+        ]
+      },
+      "metadata": {
+        "skill": "correction",
+        "difficulty": "medium",
+        "what_it_tests": "Lấy category vpn ở lượt mới thay vì printing ở lượt cũ."
       }
     }
   ]
